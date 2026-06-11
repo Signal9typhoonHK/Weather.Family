@@ -19,7 +19,6 @@
             flex-direction: column;
         }
 
-        /* 鎖定全螢幕的登入畫面 */
         #auth-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -35,7 +34,6 @@
             color: #2d3436;
         }
 
-        /* 主網頁頂部標題 */
         header {
             background: linear-gradient(135deg, #74b9ff, #0984e3);
             color: white;
@@ -56,7 +54,6 @@
         }
         .logout-btn:hover { background: white; color: #0984e3; }
 
-        /* 主要區塊：左右佈局（電腦版） */
         .main-wrapper {
             display: flex;
             flex: 1;
@@ -64,7 +61,6 @@
             position: relative;
         }
 
-        /* 左側欄：文章列表（事件排列） */
         #sidebar {
             width: 300px;
             background: white;
@@ -96,7 +92,6 @@
             font-weight: bold;
         }
 
-        /* 右側欄：文章詳細內容 */
         #content-area {
             flex: 1;
             padding: 30px;
@@ -116,7 +111,6 @@
             word-wrap: break-word;
         }
 
-        /* 語法樣式 */
         a { color: #0984e3; text-decoration: none; font-weight: bold; }
         a:hover { text-decoration: underline; }
         .dc-bold {
@@ -124,7 +118,6 @@
             display: block; margin-top: 15px; margin-bottom: 5px;
         }
 
-        /* 手機版 / 平板 響應式斷點 (RWD) */
         @media (max-width: 768px) {
             #sidebar {
                 width: 100%;
@@ -139,7 +132,6 @@
                 left: 0; top: 0; z-index: 5;
                 padding: 20px;
             }
-            /* 當看文章時，提供一個返回列表的按鈕（僅手機版有用） */
             .back-btn {
                 display: inline-block;
                 margin-bottom: 15px;
@@ -147,7 +139,6 @@
                 cursor: pointer;
                 font-weight: bold;
             }
-            /* 控制手機上手機畫面的切換 */
             .view-post #sidebar { display: none; }
             .view-post #content-area { z-index: 20; }
         }
@@ -159,19 +150,19 @@
 <body>
 
     <div id="auth-overlay">
-        <h2>⛅ 天氣家族部落格 </h2>
-        <p>此為不公開內部網站，請使用 Google 帳號登入觀看</p>
+        <h2>天氣家族部落格</h2>
+        <p>請先登入以繼續</p>
         <div id="google-login-button"></div>
     </div>
 
     <header>
-        <h1>⛅ 天氣家族</h1>
+        <h1>天氣家族</h1>
         <button class="logout-btn" onclick="logout()">登出</button>
     </header>
 
     <div class="main-wrapper" id="main-app">
         <aside id="sidebar">
-            <div class="sidebar-title">文章事件列表 (最新優先)</div>
+            <div class="sidebar-title">文章事件列表</div>
             <div id="list-container">載入中...</div>
         </aside>
 
@@ -183,52 +174,42 @@
     </div>
 
     <script>
-        // ========================================================
-        // ⚠️ 請填入你的 GOOGLE CLIENT ID
-        // ========================================================
         const GOOGLE_CLIENT_ID = '572428772881-qovum0217b4dt8iq2kg8mopen92q27lm.apps.googleusercontent.com';
         const BLOGS_FOLDER = 'blogs'; 
-        let allArticles = {}; // 儲存所有文章內容
+        let allArticles = {};
 
-        // 1. 初始化 Google 登入
         window.onload = function () {
             google.accounts.id.initialize({
                 client_id: GOOGLE_CLIENT_ID,
                 callback: handleCredentialResponse
             });
             
-            // 渲染 Google 登入按鈕
             google.accounts.id.renderButton(
                 document.getElementById("google-login-button"),
                 { theme: "outline", size: "large", type: "standard" }
             );
 
-            // 檢查是否曾經登入過
             if (localStorage.getItem('isLoggedIn') === 'true') {
                 showApp();
             }
         }
 
-        // 登入成功後的回呼
         function handleCredentialResponse(response) {
-            // 登入成功，儲存登入狀態
             localStorage.setItem('isLoggedIn', 'true');
             showApp();
         }
 
-        // 登出
-        function logout() {
+        fn_logout = function() {
             localStorage.removeItem('isLoggedIn');
-            location.reload(); // 重新整理頁面
+            location.reload();
         }
+        window.logout = fn_logout;
 
-        // 驗證成功，隱藏遮罩並載入部落格
         function showApp() {
             document.getElementById('auth-overlay').style.display = 'none';
             loadBlogPosts();
         }
 
-        // 2. 語法解析器
         function parseTextSyntax(text) {
             let html = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let linkPlaceholders = [];
@@ -244,7 +225,6 @@
             return html;
         }
 
-        // 3. 自動獲取 GitHub 資訊
         function getGitHubInfo() {
             const hostname = window.location.hostname;
             const pathname = window.location.pathname;
@@ -257,7 +237,6 @@
             return { username: 'LOCAL_TEST', repo: '' };
         }
 
-        // 4. 讀取與排列文章
         async function loadBlogPosts() {
             const listContainer = document.getElementById('list-container');
             const gitHubInfo = getGitHubInfo();
@@ -280,34 +259,27 @@
                     return;
                 }
 
-                // 🌟 事件排列：最新發布的日期/檔案排在最前面
                 txtFiles.reverse();
                 listContainer.innerHTML = '';
 
                 for (const file of txtFiles) {
                     const postTitle = file.name.replace('.txt', '');
                     
-                    // 先建立左側列表項目
                     const item = document.createElement('div');
                     item.className = 'list-item';
                     item.innerText = postTitle;
                     
-                    // 點擊事件
                     item.onclick = async function() {
-                        // 切換 active 樣式
                         document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
                         item.classList.add('active');
 
-                        // 手機版：點擊項目時切換到內容檢視狀態
                         document.body.classList.add('view-post');
 
-                        // 如果還沒抓過內容，則發送 fetch 請求
                         if (!allArticles[file.name]) {
                             const contentResponse = await fetch(file.download_url);
                             allArticles[file.name] = await contentResponse.text();
                         }
 
-                        // 渲染右側內容
                         displayContent(postTitle, allArticles[file.name]);
                     };
 
@@ -320,22 +292,21 @@
             }
         }
 
-        // 5. 渲染右側文章內容
         function displayContent(title, rawText) {
             const contentArea = document.getElementById('post-body');
             const formatted = parseTextSyntax(rawText);
             
             contentArea.innerHTML = `
-                <div class="back-btn" onclick="goBackToList()">⬅ 返回事件列表</div>
+                <div class="back-btn" onclick="goBackToList()">返回</div>
                 <h2 class="post-title">${title}</h2>
                 <div class="post-content">${formatted}</div>
             `;
         }
 
-        // 手機版專用：返回列表
-        function goBackToList() {
+        fn_goBackToList = function() {
             document.body.classList.remove('view-post');
         }
+        window.goBackToList = fn_goBackToList;
     </script>
 </body>
 </html>
