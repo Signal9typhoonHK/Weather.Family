@@ -2,331 +2,53 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>天氣家族 (非官方網誌)</title>
+    <title>天氣家族 (全自動網誌)</title>
     <style>
-        body {
-            font-family: "Helvetica Neue", Helvetica, Arial, "PingFang HK", "Microsoft JhengHei", sans-serif;
-            background-color: #f9f9f9;
-            color: #222;
-            line-height: 1.8;
-            margin: 0;
-            padding: 0;
-        }
-
-        #container {
-            max-width: 950px;
-            margin: 40px auto;
-            background: #fff;
-            padding: 40px 50px;
-            border: 1px solid #ddd;
-            display: flex;
-            gap: 40px;
-        }
-
-        .main-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .sidebar {
-            width: 300px;
-            border-left: 1px dashed #ddd;
-            padding-left: 30px;
-            flex-shrink: 0;
-        }
-
-        .brand-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .site-icon {
-            width: 45px;
-            height: 45px;
-            object-fit: contain;
-            border: 1px solid #ccc;
-            padding: 2px;
-            background: #fff;
-            display: block;
-        }
-
-        .site-title {
-            font-size: 28px;
-            font-weight: bold;
-            text-decoration: underline;
-            text-decoration-color: #ccc;
-            color: #222;
-        }
-
-        .disclaimer {
-            font-size: 12px;
-            color: #777;
-            margin-bottom: 30px;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-left: 3px solid #666;
-        }
-
-        h1 {
-            font-size: 20px;
-            color: #111;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-            margin-top: 0;
-        }
-
-        h2 {
-            font-size: 16px;
-            color: #333;
-            margin-top: 25px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        p {
-            font-size: 14px;
-        }
-
-        .directory-group {
-            margin-bottom: 25px;
-        }
-
-        .directory-group h3 {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 5px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 3px;
-        }
-
-        .directory-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .directory-list li {
-            font-size: 13px;
-            margin-bottom: 4px;
-            word-break: break-all;
-        }
-
-        .directory-list a {
-            color: #0056b3;
-            text-decoration: none;
-        }
-
-        .directory-list a:hover {
-            text-decoration: underline;
-        }
-
-        .tag-label {
-            color: #666;
-            font-size: 11px;
-            background: #eee;
-            padding: 1px 5px;
-            border-radius: 3px;
-            margin-left: 5px;
-        }
-
-        .blog-card {
-            border: 1px solid #e5e5e5;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: #fff;
-        }
-
-        .blog-card h4 {
-            font-size: 18px;
-            margin: 0 0 10px 0;
-            color: #111;
-        }
-
-        .blog-card p {
-            margin: 0;
-            white-space: pre-wrap;
-        }
-
-        .blog-card a {
-            color: #0056b3;
-            text-decoration: underline;
-        }
-
-        .error-box {
-            color: #a00;
-            background: #fff0f0;
-            padding: 15px;
-            border: 1px solid #edd;
-            font-size: 13px;
-        }
-
-        .footer {
-            margin-top: 40px;
-            border-top: 1px solid #ddd;
-            padding-top: 20px;
-            font-size: 11px;
-            color: #999;
-            text-align: center;
-            width: 100%;
-        }
+        body { font-family: sans-serif; background: #f9f9f9; padding: 20px; }
+        #container { max-width: 800px; margin: auto; background: #fff; padding: 40px; border: 1px solid #ddd; }
+        .brand { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+        .site-icon { width: 50px; height: 50px; }
+        .blog-card { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc; }
+        .blog-card h4 { margin: 0 0 10px 0; color: #000; text-decoration: underline; }
+        .blog-card p { white-space: pre-wrap; font-size: 15px; line-height: 1.6; }
     </style>
 </head>
 <body>
-
     <div id="container">
-        
-        <div class="main-content">
-            <div class="brand-header">
-                <img src="./icons/weatherfamily.png" alt="Logo" class="site-icon">
-                <div class="site-title">天氣家族 Blog</div>
-            </div>
-
-            <div class="disclaimer">
-                非官方社群網誌。本群組與任何官方氣象機構無關。所有自創顏色及風球信號純屬群組創作交流。
-            </div>
-
-            <h1>最新日誌</h1>
-            <div id="blog-feed">正在讀取網誌文章...</div>
+        <div class="brand">
+            <img src="icons/weatherfamily.png" class="site-icon">
+            <h1>天氣家族 Blog</h1>
         </div>
-
-        <div class="sidebar">
-            <h1>天氣家族 Threads 名冊</h1>
-            
-            <div class="directory-group">
-                <h3>1. 天氣先生家族</h3>
-                <ul class="directory-list">
-                    <li><a href="https://www.threads.net/@freddyweatherman_obsevatoy_hk" target="_blank">@freddyweatherman_obsevatoy_hk</a></li>
-                    <li><a href="https://www.threads.net/@weather_boy.and_dog" target="_blank">@weather_boy.and_dog</a></li>
-                    <li><a href="https://www.threads.net/@freddy_the_weathermanhk" target="_blank">@freddy_the_weathermanhk</a></li>
-                </ul>
-            </div>
-
-            <div class="directory-group">
-                <h3>2. 火災家族</h3>
-                <ul class="directory-list">
-                    <li><a href="https://www.threads.net/@yellow_fire_warning_signal" target="_blank">@yellow_fire_warning_signal</a> <span class="tag-label">黃火</span></li>
-                    <li><a href="https://www.threads.net/@fire_danger_warnings" target="_blank">@fire_danger_warnings</a> <span class="tag-label">紅火</span></li>
-                </ul>
-            </div>
-
-            <div class="directory-group">
-                <h3>3. 流星雨單身狗</h3>
-                <ul class="directory-list">
-                    <li><a href="https://www.threads.net/@serenity_star.rainstorm.signal" target="_blank">@serenity_star.rainstorm.signal</a></li>
-                </ul>
-            </div>
-
-            <div class="directory-group">
-                <h3>4. 暴雨家族</h3>
-                <ul class="directory-list">
-                    <li><a href="https://www.threads.net/@amber_rainstorm.warning_signal" target="_blank">@amber_rainstorm.warning_signal</a> <span class="tag-label">黃雨</span></li>
-                    <li><a href="https://www.threads.net/@red_rain_signal_unofficial" target="_blank">@red_rain_signal_unofficial</a> <span class="tag-label">紅雨</span></li>
-                    <li><a href="https://www.threads.net/@black.rainstorm.signal" target="_blank">@black.rainstorm.signal</a> <span class="tag-label">黑雨1</span></li>
-                    <li><a href="https://www.threads.net/@black_rainstorm_warning" target="_blank">@black_rainstorm_warning</a> <span class="tag-label">黑雨2</span></li>
-                </ul>
-                <h2 style="font-size: 13px; color: #777; margin-top:10px;">其他顏色暴雨警告：</h2>
-                <ul class="directory-list">
-                    <li><a href="https://www.threads.net/@orange_rainstorm_signal" target="_blank">@orange_rainstorm_signal</a></li>
-                    <li><a href="https://www.threads.net/@pink.rainstorm.warning.signal" target="_blank">@pink.rainstorm.warning.signal</a></li>
-                    <li><a href="https://www.threads.net/@rainbow.rainstorm.signal" target="_blank">@rainbow.rainstorm.signal</a></li>
-                    <li><a href="https://www.threads.net/@no_rain_hk" target="_blank">@no_rain_hk</a></li>
-                    <li><a href="https://www.threads.net/@brownrain_hkweather" target="_blank">@brownrain_hkweather</a></li>
-                </ul>
-            </div>
-
-            <div class="directory-group">
-                <h3>5. 颱風家族</h3>
-                <ul class="directory-list">
-                    <li><a href="https://www.threads.net/@standby_signal_no.1" target="_blank">@standby_signal_no.1</a> <span class="tag-label">一號</span></li>
-                    <li><a href="https://www.threads.net/@sws_no.3" target="_blank">@sws_no.3</a> <span class="tag-label">三號</span></li>
-                    <li><a href="https://www.threads.net/@pre.typhoon.8.unofficial" target="_blank">@pre.typhoon.8.unofficial</a> <span class="tag-label">pre八號</span></li>
-                    <li><a href="https://www.threads.net/@typhoon_signal_no.8" target="_blank">@typhoon_signal_no.8</a> <span class="tag-label">八號</span></li>
-                    <li><a href="https://www.threads.net/@typhoon.signal.no.8.northeast" target="_blank">@typhoon.signal.no.8.northeast</a> <span class="tag-label">八號東北</span></li>
-                    <li><a href="https://www.threads.net/@hk.typhoon_signal_no.9" target="_blank">@hk.typhoon_signal_no.9</a> <span class="tag-label">九號</span></li>
-                    <li><a href="https://www.threads.net/@typhoon_signal_no.10" target="_blank">@typhoon_signal_no.10</a> <span class="tag-label">十號</span></li>
-                </ul>
-            </div>
-
-            <div class="directory-group">
-                <h3>6. 季候風家族</h3>
-                <ul class="directory-list">
-                    <li><a href="https://www.threads.net/@strongmonsoonsignal.unofficial" target="_blank">@strongmonsoonsignal.unofficial</a></li>
-                    <li><a href="https://www.threads.net/@strong_monsoon_signal" target="_blank">@strong_monsoon_signal</a></li>
-                </ul>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="footer">
-        非官方天氣家族文檔庫 2026
+        <div id="blog-feed">正在自動同步網誌文章...</div>
     </div>
 
     <script>
-        const blogsFolder = 'blogs/';
-        const indexFile = 'blogs/posts.txt';
-        const feedContainer = document.getElementById('blog-feed');
+        // 設定你的 GitHub 資訊
+        const repoOwner = "你的GitHub帳號"; 
+        const repoName = "你的倉庫名稱";
+        const path = "blogs";
 
-        function extractTitle(filename) {
-            const match = filename.match(/\(([^)]+)\)/);
-            return match ? match[1] : '未命名文章';
-        }
-
-        function parseBodyContent(rawText) {
-            return rawText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-        }
-
-        async function loadFeed() {
+        async function autoLoadFiles() {
+            const feed = document.getElementById('blog-feed');
             try {
-                const response = await fetch(indexFile);
-                if (!response.ok) throw new Error('無法讀取索引文件');
+                const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+                const res = await fetch(url);
+                const data = await res.json();
                 
-                const rawIndex = await response.text();
-                const files = rawIndex.split('\n').map(f => f.trim()).filter(f => f.length > 0);
-
-                if(files.length === 0) {
-                    feedContainer.innerHTML = '<p style="color:#777;">暫時沒有任何日誌發布。</p>';
-                    return;
+                feed.innerHTML = '';
+                // 自動篩選所有 .txt 檔並顯示
+                for (const file of data.filter(f => f.name.endsWith('.txt'))) {
+                    const contentRes = await fetch(file.download_url);
+                    const content = await contentRes.text();
+                    // 自動抓取括號內容作為標題
+                    const title = file.name.match(/\(([^)]+)\)/)?.[1] || file.name.replace('.txt', '');
+                    const body = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+                    
+                    feed.innerHTML += `<div class="blog-card"><h4>${title}</h4><p>${body}</p></div>`;
                 }
-
-                feedContainer.innerHTML = ''; 
-
-                for (const file of files) {
-                    try {
-                        const fileResponse = await fetch(blogsFolder + file);
-                        if (fileResponse.ok) {
-                            const rawContent = await fileResponse.text();
-                            
-                            const parsedTitle = extractTitle(file);
-                            const parsedBody = parseBodyContent(rawContent);
-
-                            let cardHtml = `
-                                <div class="blog-card">
-                                    <h4>${parsedTitle}</h4>
-                                    <p>${parsedBody}</p>
-                                </div>
-                            `;
-                            feedContainer.innerHTML += cardHtml;
-                        }
-                    } catch (e) {
-                        console.error("無法讀取檔案: " + file, e);
-                    }
-                }
-
-            } catch (err) {
-                feedContainer.innerHTML = `
-                    <div class="error-box">
-                        讀取錯誤：請確認是否建立了 /blogs/posts.txt 並且正在透過本地主機環境（如 Live Server）開啟此網頁。
-                    </div>
-                `;
-            }
+            } catch(e) { feed.innerHTML = '無法自動同步，請確認 GitHub 倉庫設定是否正確。'; }
         }
-
-        loadFeed();
+        autoLoadFiles();
     </script>
 </body>
 </html>
