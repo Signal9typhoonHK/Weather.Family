@@ -3,232 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>天氣家族</title>
+    <title>天氣家族 (非官方網誌) - 成員總覽</title>
     <style>
-        /* Blog Theme Variables */
-        :root {
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-            --accent-color: #4A90E2;
-            --card-bg: #ffffff;
-            --border-color: #eaeaea;
-        }
-
+        /* Classic / Minimalist Blog Style */
         body {
-            font-family: 'PingFang HK', 'Helvetica Neue', Helvetica, 'Microsoft YaHei', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: "Helvetica Neue", Helvetica, Arial, "PingFang HK", "Microsoft JhengHei", sans-serif;
+            background-color: #f9f9f9;
+            color: #222;
+            line-height: 1.8;
             margin: 0;
             padding: 0;
-            line-height: 1.7;
         }
 
-        /* Blog Header */
-        header {
-            background-color: var(--card-bg);
-            padding: 3rem 0;
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-        }
-        header h1 {
-            font-size: 2.5rem;
-            margin: 0;
-            color: #2c3e50;
-            letter-spacing: 2px;
-        }
-        header p {
-            color: #7f8c8d;
-            font-size: 1.1rem;
-            margin-top: 10px;
+        #container {
+            max-width: 750px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 40px 50px;
+            border: 1px solid #ddd;
         }
 
-        /* Navigation */
-        nav {
-            margin-top: 1.5rem;
-        }
-        nav a {
-            text-decoration: none;
-            color: var(--accent-color);
-            margin: 0 15px;
+        /* Header / Disclaimer */
+        .site-title {
+            font-size: 28px;
             font-weight: bold;
-            font-size: 1rem;
-            transition: color 0.3s;
-        }
-        nav a:hover {
-            color: #2980b9;
+            margin-bottom: 5px;
+            text-decoration: underline;
+            text-decoration-color: #ccc;
         }
 
-        /* Main Blog Container */
-        .blog-container {
-            max-width: 900px;
-            margin: 3rem auto;
-            padding: 0 20px;
+        .disclaimer {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 30px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-left: 4px solid #666;
         }
 
-        /* Blog Post Article */
-        .blog-post {
-            background-color: var(--card-bg);
-            padding: 3rem;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
-        .post-meta {
-            color: #95a5a6;
-            font-size: 0.9rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .post-title {
-            text-align: center;
-            font-size: 2.2rem;
-            color: #2c3e50;
-            margin-bottom: 2rem;
-        }
-
-        /* Content Sections */
-        .category-section {
-            margin-top: 3rem;
-        }
-        .category-title {
-            font-size: 1.5rem;
-            color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
+        /* Typography */
+        h1 {
+            font-size: 24px;
+            color: #111;
+            border-bottom: 2px dashed #eee;
             padding-bottom: 10px;
-            margin-bottom: 1.5rem;
+            margin-top: 40px;
         }
 
-        /* Grid for Members */
-        .member-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
+        h2 {
+            font-size: 18px;
+            color: #444;
+            margin-top: 30px;
         }
 
-        /* Member Tags */
-        .member-tag {
-            background-color: #f8f9fa;
-            border: 1px solid var(--border-color);
-            padding: 12px 15px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
+        p {
+            font-size: 15px;
+        }
+
+        /* Lists */
+        ul {
+            list-style-type: square;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        /* Special member styles */
+        .highlight {
+            background-color: #fffacd;
+            padding: 0 4px;
+        }
+
+        .rainbow-text {
+            background: linear-gradient(90deg, red, orange, green, blue, purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-weight: bold;
-            color: #34495e;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .member-tag:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border-color: var(--accent-color);
-        }
-        .emoji {
-            font-size: 1.5rem;
-            margin-right: 10px;
         }
 
-        /* Special Colors for specific members */
-        .black-rain { background-color: #2c3e50; color: white; }
-        .red-rain { background-color: #e74c3c; color: white; }
-        .amber-rain { background-color: #f1c40f; color: #333; }
-        .t10 { background-color: #8e44ad; color: white; }
-        
         /* Footer */
-        footer {
+        .footer {
+            margin-top: 60px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+            font-size: 12px;
+            color: #999;
             text-align: center;
-            padding: 2rem;
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-top: 2rem;
+        }
+
+        a {
+            color: #0056b3;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>🌤️ 天氣家族 官方網誌</h1>
-        <p>記錄我們這個時而晴天、時而瘋狂的氣象大家庭</p>
-        <nav>
-            <a href="#">首頁</a>
-            <a href="#">家族成員</a>
-            <a href="#">日常廢文</a>
-            <a href="#">關於我們</a>
-        </nav>
-    </header>
+    <div id="container">
+        <div class="site-title">天氣家族 Blog</div>
+        
+        <div class="disclaimer">
+            申報利益：本網誌為網民自發建立的非官方社群，與香港天文台及任何政府機構絕對無關。所有特殊天氣顏色及警告純屬家族群組內部交流及創作。
+        </div>
 
-    <div class="blog-container">
-        <article class="blog-post">
-            <div class="post-meta">置頂文章 • 家族點名 • 2026年更新</div>
-            <h2 class="post-title">【名單大公開】天氣家族全體成員報到！</h2>
-            <p>歡迎來到天氣家族的 Blog！我們這裡不只有天文台的常規警告，還有我們專屬的隱藏版與海外/傳說級成員。為了防止大家認錯人，今天版主特別整理了這份史上最齊全的家族名單，請各位對號入座！</p>
+        <div class="post">
+            <h1>2026年度 天氣家族成員點名冊 (完整版)</h1>
+            <p>Admin 話要整理返個完整名單，費事大家又加啲奇怪嘅天氣落去。以下係我哋家族最新嘅成員分類，對號入座啦各位。</p>
 
-            <!-- Section 1: The VIPs -->
-            <div class="category-section">
-                <h3 class="category-title">👨‍💼 家族主理人</h3>
-                <div class="member-grid">
-                    <div class="member-tag"><span class="emoji">👔</span>天氣先生</div>
-                    <div class="member-tag"><span class="emoji">🧔‍♂️</span>天氣老竇</div>
-                </div>
-            </div>
+            <h2>核心大人物</h2>
+            <ul>
+                <li>天氣先生</li>
+                <li>天氣老竇</li>
+            </ul>
 
-            <!-- Section 2: Typhoons -->
-            <div class="category-section">
-                <h3 class="category-title">🌀 颱風派系 (風波不斷的群組)</h3>
-                <div class="member-grid">
-                    <div class="member-tag"><span class="emoji">🍃</span>1號風球</div>
-                    <div class="member-tag"><span class="emoji">🤔</span>2號風球 (傳說中)</div>
-                    <div class="member-tag"><span class="emoji">💨</span>3號風球</div>
-                    <div class="member-tag"><span class="emoji">⏳</span>預八號風球</div>
-                    <div class="member-tag"><span class="emoji">🌪️</span>8號風球 (東南西北)</div>
-                    <div class="member-tag"><span class="emoji">🚀</span>9號風球</div>
-                    <div class="member-tag t10"><span class="emoji">💥</span>十號風球</div>
-                </div>
-            </div>
+            <h2>風球系列 (由細到大)</h2>
+            <p>溫馨提示：不要再問點解會有2號，因為我哋呢度係咁的。</p>
+            <ul>
+                <li>1號風球</li>
+                <li><span class="highlight">2號風球</span> (傳說中嘅存在)</li>
+                <li>3號風球</li>
+                <li>預八號風球</li>
+                <li>8號風球 (包括 東南西北)</li>
+                <li>9號風球</li>
+                <li>十號風球</li>
+            </ul>
 
-            <!-- Section 3: Rainstorms -->
-            <div class="category-section">
-                <h3 class="category-title">☔ 暴雨戰隊 (調色盤系列)</h3>
-                <p style="font-size: 0.9rem; color: #7f8c8d; margin-top: -10px;">不只有黑紅黃，我們連調色盤都搬出來了！</p>
-                <div class="member-grid">
-                    <div class="member-tag"><span class="emoji">🤷</span>冇雨</div>
-                    <div class="member-tag amber-rain"><span class="emoji">🟡</span>黃雨</div>
-                    <div class="member-tag red-rain"><span class="emoji">🔴</span>紅雨</div>
-                    <div class="member-tag black-rain"><span class="emoji">⚫</span>黑雨</div>
-                    <div class="member-tag" style="background: #f39c12; color: white;"><span class="emoji">🟠</span>橙色暴雨</div>
-                    <div class="member-tag" style="background: #3498db; color: white;"><span class="emoji">🔵</span>藍色暴雨</div>
-                    <div class="member-tag" style="background: #8d6e63; color: white;"><span class="emoji">🟤</span>棕色暴雨</div>
-                    <div class="member-tag" style="background: #ffb6c1; color: #333;"><span class="emoji">🌸</span>粉色暴雨</div>
-                    <div class="member-tag" style="background: #fdfdfd; color: #333;"><span class="emoji">⚪</span>白色暴雨</div>
-                </div>
-            </div>
+            <h2>暴雨系列 (調色盤)</h2>
+            <ul>
+                <li>冇雨</li>
+                <li>黃雨</li>
+                <li>紅雨</li>
+                <li>黑雨</li>
+                <li>橙色暴雨</li>
+                <li>棕色暴雨</li>
+                <li>藍色暴雨</li>
+                <li>粉色暴雨</li>
+                <li>白色暴雨</li>
+                <li><span class="rainbow-text">彩虹暴雨</span> (最新加入)</li>
+            </ul>
 
-            <!-- Section 4: Warnings & Others -->
-            <div class="category-section">
-                <h3 class="category-title">⚠️ 警告與特殊氣象組</h3>
-                <div class="member-grid">
-                    <div class="member-tag"><span class="emoji">🌬️</span>季候風</div>
-                    <div class="member-tag"><span class="emoji">⛰️</span>山泥傾瀉</div>
-                    <div class="member-tag"><span class="emoji">🌠</span>流星雨</div>
-                    <div class="member-tag"><span class="emoji">⚡</span>雷暴警告</div>
-                    <div class="member-tag"><span class="emoji">🥶</span>寒冷天氣警告</div>
-                    <div class="member-tag"><span class="emoji">🥵</span>酷熱天氣警告</div>
-                    <div class="member-tag"><span class="emoji">🔥</span>黃色紅色火災危險警告</div>
-                    <div class="member-tag"><span class="emoji">🌊</span>新界北部水浸特別報告</div>
-                    <div class="member-tag"><span class="emoji">🚨</span>極端天氣</div>
-                </div>
-            </div>
+            <h2>其他警告及日常現象</h2>
+            <ul>
+                <li>極端天氣</li>
+                <li>季候風</li>
+                <li>山泥傾瀉</li>
+                <li>流星雨</li>
+                <li>雷暴警告</li>
+                <li>寒冷天氣警告</li>
+                <li>酷熱天氣警告</li>
+                <li>黃色及紅色火災危險警告</li>
+                <li>新界北部水浸特別報告</li>
+            </ul>
 
-            <p style="margin-top: 3rem; text-align: center; font-style: italic; color: #7f8c8d;">
-                大家最喜歡哪個成員？還是你是傳說中的「2號風球」？在下面留言告訴我們吧！👇
-            </p>
-        </article>
+            <br>
+            <p>名單暫時係咁多。如果有遺漏，麻煩喺論壇或者群組 PM 提返我加。</p>
+        </div>
+
+        <div class="footer">
+            網誌更新於 2026年 | <a href="#">返回首頁</a> | <a href="#">聯絡管理員</a>
+        </div>
     </div>
-
-    <footer>
-        &copy; 2026 天氣家族 Blog. 由氣象愛好者們共同維護。
-    </footer>
 
 </body>
 </html>
