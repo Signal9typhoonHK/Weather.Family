@@ -4,123 +4,250 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>天氣家族</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
+        * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: #f4f7f6;
             color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        header {
-            text-align: center;
-            padding: 30px 0;
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
-            color: white;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        header h1 {
             margin: 0;
-            font-size: 2.5rem;
-            letter-spacing: 2px;
-        }
-        #blog-container {
+            padding: 0;
+            line-height: 1.6;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 25px;
         }
-        .post {
+
+        /* 鎖定全螢幕的登入畫面 */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #auth-overlay h2 {
+            margin-bottom: 20px;
+            color: #2d3436;
+        }
+
+        /* 主網頁頂部標題 */
+        header {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .logout-btn:hover { background: white; color: #0984e3; }
+
+        /* 主要區塊：左右佈局（電腦版） */
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 左側欄：文章列表（事件排列） */
+        #sidebar {
+            width: 300px;
             background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-right: 1px solid #dfe6e9;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #636e72;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f4f7f6;
+            padding-bottom: 5px;
+        }
+        .list-item {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        .list-item:hover { background: #eef2f7; }
+        .list-item.active {
+            background: #e3f2fd;
+            border-left-color: #0984e3;
+            font-weight: bold;
+        }
+
+        /* 右側欄：文章詳細內容 */
+        #content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #ffffff;
         }
         .post-title {
-            font-size: 1.8rem;
+            font-size: 2rem;
             color: #2d3436;
             margin-top: 0;
-            margin-bottom: 15px;
             border-bottom: 2px solid #dfe6e9;
             padding-bottom: 10px;
         }
         .post-content {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
+            white-space: pre-wrap;
             word-wrap: break-word;
-            white-space: pre-wrap; /* 保持原本 txt 的換行與空格 */
         }
-        a {
-            color: #0984e3;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
+
+        /* 語法樣式 */
+        a { color: #0984e3; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
         .dc-bold {
-            font-weight: bold;
-            font-size: 1.3rem;
-            color: #2d3436;
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 5px;
+            font-weight: bold; font-size: 1.3rem; color: #2d3436;
+            display: block; margin-top: 15px; margin-bottom: 5px;
         }
-        .loading, .error, .no-posts {
-            text-align: center;
-            font-size: 1.2rem;
-            padding: 40px;
-            color: #636e72;
+
+        /* 手機版 / 平板 響應式斷點 (RWD) */
+        @media (max-width: 768px) {
+            #sidebar {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                left: 0; top: 0; z-index: 10;
+            }
+            #content-area {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                left: 0; top: 0; z-index: 5;
+                padding: 20px;
+            }
+            /* 當看文章時，提供一個返回列表的按鈕（僅手機版有用） */
+            .back-btn {
+                display: inline-block;
+                margin-bottom: 15px;
+                color: #0984e3;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            /* 控制手機上手機畫面的切換 */
+            .view-post #sidebar { display: none; }
+            .view-post #content-area { z-index: 20; }
         }
-        .error { color: #d63031; }
+        @media (min-width: 769px) {
+            .back-btn { display: none; }
+        }
     </style>
 </head>
 <body>
 
+    <div id="auth-overlay">
+        <h2>⛅ 天氣家族部落格 </h2>
+        <p>此為不公開內部網站，請使用 Google 帳號登入觀看</p>
+        <div id="google-login-button"></div>
+    </div>
+
     <header>
-        <h1>⛅ 天氣家族 ⛅</h1>
+        <h1>⛅ 天氣家族</h1>
+        <button class="logout-btn" onclick="logout()">登出</button>
     </header>
 
-    <main id="blog-container">
-        <div class="loading">正在讀取最新文章，請稍候...</div>
-    </main>
+    <div class="main-wrapper" id="main-app">
+        <aside id="sidebar">
+            <div class="sidebar-title">文章事件列表 (最新優先)</div>
+            <div id="list-container">載入中...</div>
+        </aside>
+
+        <main id="content-area">
+            <div id="post-body">
+                <p style="color:#636e72; text-align:center; margin-top:100px;">請從左側選擇一篇文章觀看</p>
+            </div>
+        </main>
+    </div>
 
     <script>
+        // ========================================================
+        // ⚠️ 請填入你的 GOOGLE CLIENT ID
+        // ========================================================
+        const GOOGLE_CLIENT_ID = '572428772881-qovum0217b4dt8iq2kg8mopen92q27lm.apps.googleusercontent.com';
         const BLOGS_FOLDER = 'blogs'; 
+        let allArticles = {}; // 儲存所有文章內容
 
-        // 安全精準的語法解析器
+        // 1. 初始化 Google 登入
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleCredentialResponse
+            });
+            
+            // 渲染 Google 登入按鈕
+            google.accounts.id.renderButton(
+                document.getElementById("google-login-button"),
+                { theme: "outline", size: "large", type: "standard" }
+            );
+
+            // 檢查是否曾經登入過
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                showApp();
+            }
+        }
+
+        // 登入成功後的回呼
+        function handleCredentialResponse(response) {
+            // 登入成功，儲存登入狀態
+            localStorage.setItem('isLoggedIn', 'true');
+            showApp();
+        }
+
+        // 登出
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            location.reload(); // 重新整理頁面
+        }
+
+        // 驗證成功，隱藏遮罩並載入部落格
+        function showApp() {
+            document.getElementById('auth-overlay').style.display = 'none';
+            loadBlogPosts();
+        }
+
+        // 2. 語法解析器
         function parseTextSyntax(text) {
-            // 1. 防止 HTML 標籤衝突
             let html = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-            // 2. 安全封裝自訂連結: "顯示文字"[網址] 轉為臨時編號代碼，避免與純網址偵測衝突
             let linkPlaceholders = [];
             html = html.replace(/"([^"]+)"\[(https?:\/\/[^\]\s]+)\]/g, function(match, label, url) {
                 linkPlaceholders.push(`<a href="${url}" target="_blank">${label}</a>`);
                 return `___LINK_ID_${linkPlaceholders.length - 1}___`;
             });
-
-            // 3. 自動偵測普通純網址並加上超連結 (排除已被打包或包含引號括號的雜訊)
             html = html.replace(/(https?:\/\/[^\s"'<>\]\)]+)/g, '<a href="$1" target="_blank">$1</a>');
-
-            // 4. 將剛剛安全打包的自訂連結還原放回 HTML
             html = html.replace(/___LINK_ID_(\d+)___/g, function(match, index) {
                 return linkPlaceholders[index];
             });
-
-            // 5. 處理類似 Discord 的 # 粗體大字 (支援每行開頭有 # )
             html = html.replace(/^#\s*(.+)/gm, '<span class="dc-bold">$1</span>');
-
             return html;
         }
 
-        // 自動從目前網址獲取 GitHub 資訊 (免填帳號密碼)
+        // 3. 自動獲取 GitHub 資訊
         function getGitHubInfo() {
             const hostname = window.location.hostname;
             const pathname = window.location.pathname;
-
             if (hostname.endsWith('.github.io')) {
                 const username = hostname.split('.')[0];
                 const pathParts = pathname.split('/').filter(part => part);
@@ -130,61 +257,85 @@
             return { username: 'LOCAL_TEST', repo: '' };
         }
 
-        // 讀取文章主程式
+        // 4. 讀取與排列文章
         async function loadBlogPosts() {
-            const container = document.getElementById('blog-container');
+            const listContainer = document.getElementById('list-container');
             const gitHubInfo = getGitHubInfo();
             
             if (gitHubInfo.username === 'LOCAL_TEST') {
-                container.innerHTML = `<div class="error">提示：請將檔案 commit & push 到 GitHub 儲存庫，並開啟 GitHub Pages 網址查看。<br>(本機電腦雙擊點開 HTML 無法使用自動偵測功能)</div>`;
+                listContainer.innerHTML = `<span style="color:red">請上傳至 GitHub Pages 測試。</span>`;
                 return;
             }
 
             try {
                 const apiUrl = `https://api.github.com/repos/${gitHubInfo.username}/${gitHubInfo.repo}/contents/${BLOGS_FOLDER}`;
                 const response = await fetch(apiUrl);
-                
-                if (!response.ok) {
-                    throw new Error('無法連線至 GitHub Pages 資料庫，請確認您的儲存庫設定為公開(Public)。');
-                }
+                if (!response.ok) throw new Error('無法連線至 GitHub API');
                 
                 const files = await response.json();
-                container.innerHTML = ''; 
-
                 const txtFiles = files.filter(file => file.name.endsWith('.txt'));
 
                 if (txtFiles.length === 0) {
-                    container.innerHTML = '<div class="no-posts">目前 blogs 資料夾內沒有任何 .txt 文章喔！</div>';
+                    listContainer.innerHTML = '沒有文章';
                     return;
                 }
 
-                // 新文章排在最上面
+                // 🌟 事件排列：最新發布的日期/檔案排在最前面
                 txtFiles.reverse();
+                listContainer.innerHTML = '';
 
                 for (const file of txtFiles) {
-                    const contentResponse = await fetch(file.download_url);
-                    const rawText = await contentResponse.text();
-                    
-                    const formattedContent = parseTextSyntax(rawText);
                     const postTitle = file.name.replace('.txt', '');
+                    
+                    // 先建立左側列表項目
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.innerText = postTitle;
+                    
+                    // 點擊事件
+                    item.onclick = async function() {
+                        // 切換 active 樣式
+                        document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+                        item.classList.add('active');
 
-                    const postElement = document.createElement('article');
-                    postElement.className = 'post';
-                    postElement.innerHTML = `
-                        <h2 class="post-title">${postTitle}</h2>
-                        <div class="post-content">${formattedContent}</div>
-                    `;
-                    container.appendChild(postElement);
+                        // 手機版：點擊項目時切換到內容檢視狀態
+                        document.body.classList.add('view-post');
+
+                        // 如果還沒抓過內容，則發送 fetch 請求
+                        if (!allArticles[file.name]) {
+                            const contentResponse = await fetch(file.download_url);
+                            allArticles[file.name] = await contentResponse.text();
+                        }
+
+                        // 渲染右側內容
+                        displayContent(postTitle, allArticles[file.name]);
+                    };
+
+                    listContainer.appendChild(item);
                 }
 
             } catch (error) {
-                container.innerHTML = `<div class="error">載入失敗，錯誤原因：<br>${error.message}</div>`;
+                listContainer.innerHTML = '讀取失敗';
                 console.error(error);
             }
         }
 
-        // 網頁運行或重新整理時執行
-        loadBlogPosts();
+        // 5. 渲染右側文章內容
+        function displayContent(title, rawText) {
+            const contentArea = document.getElementById('post-body');
+            const formatted = parseTextSyntax(rawText);
+            
+            contentArea.innerHTML = `
+                <div class="back-btn" onclick="goBackToList()">⬅ 返回事件列表</div>
+                <h2 class="post-title">${title}</h2>
+                <div class="post-content">${formatted}</div>
+            `;
+        }
+
+        // 手機版專用：返回列表
+        function goBackToList() {
+            document.body.classList.remove('view-post');
+        }
     </script>
 </body>
 </html>
