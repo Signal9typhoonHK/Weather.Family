@@ -4,56 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>天氣家族</title>
-    <link rel="icon" href="/root/icons/weatherfamily.png" type="image/png">
+    <link rel="icon" href="./root/icons/weatherfamily.png" type="image/png">
     
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-color: #f4f6f8;
             color: #333;
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px 20px;
         }
         h1 {
             text-align: center;
-            color: #2c3e50;
+            color: #1a1a1a;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+        }
+        #blog-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         .blog-box {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e1e8ed;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s ease-in-out;
         }
         .blog-box:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: #ccd6dd;
         }
-        .blog-content {
-            display: none; /* Hidden by default */
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            line-height: 1.6;
-        }
-        .blog-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin: 0;
-            color: #34495e;
+        .blog-cover h2 {
+            margin: 0 0 8px 0;
+            color: #1b1d1f;
+            font-size: 1.4em;
         }
         .view-count {
             font-size: 0.85em;
-            color: #888;
-            margin-top: 10px;
-            display: inline-block;
+            color: #657786;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .blog-content {
+            display: none; /* Collapsed by default */
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e8ed;
+            line-height: 1.8;
+            font-size: 1.05em;
+            color: #2c3e50;
         }
         a {
-            color: #3498db;
+            color: #1d9bf0;
             text-decoration: none;
+            font-weight: 500;
         }
         a:hover {
             text-decoration: underline;
@@ -66,24 +77,20 @@
     <div id="blog-container"></div>
 
     <script>
-        // Start looking for 1.txt, then 2.txt, etc.
         let blogIndex = 1;
         const container = document.getElementById('blog-container');
 
         async function loadBlogs() {
             while (true) {
                 try {
-                    // Try to fetch the text file
-                    const response = await fetch(`/root/blogs/${blogIndex}.txt`);
-                    
-                    // If the file doesn't exist (e.g., we ran out of blogs), stop the loop
-                    if (!response.ok) break; 
+                    // Fetch sequentially (1.txt, 2.txt...) using relative paths
+                    const response = await fetch(`./root/blogs/${blogIndex}.txt`);
+                    if (!response.ok) break; // Stop loop if file doesn't exist
                     
                     const text = await response.text();
                     createBlogBox(blogIndex, text);
                     blogIndex++;
                 } catch (error) {
-                    console.error("Finished loading blogs or encountered an error.", error);
                     break;
                 }
             }
@@ -92,19 +99,16 @@
         function parseText(text) {
             let html = text;
 
-            // 1. Format ##Title as bold and blog title
-            // Looks for ## at the start of a line, captures the rest, makes it bold
-            html = html.replace(/^##\s*(.+)$/gm, '<div class="blog-title">$1</div>');
+            // 1. Convert ## Title lines into blog titles
+            html = html.replace(/^##\s*(.+)$/gm, '<div class="blog-title-header">$1</div>');
 
-            // 2. Format "text"[url] into clickable links
-            // e.g., "click me"[https://google.com]
+            // 2. Format "text"[url] custom links
             html = html.replace(/"([^"]+)"\[([^\]]+)\]/g, '<a href="$2" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">$1</a>');
 
-            // 3. Format raw URLs into clickable links
-            // Uses negative lookbehind to ensure we don't accidentally double-link existing <a> tags
-            html = html.replace(/(?<!href=["'])(https?:\/\/[^\s<]+)(?!["'])/g, '<a href="$1" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">$1</a>');
+            // 3. Format standalone raw URLs safely (ignores URLs already in href attributes)
+            html = html.replace(/(?<!href=["'])(https?:\/\/[^\s><"']+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">$1</a>');
 
-            // 4. Convert line breaks to <br> so formatting is preserved
+            // 4. Convert newlines to breaks to preserve text layout
             html = html.replace(/\n/g, '<br>');
 
             return html;
@@ -113,59 +117,53 @@
         function createBlogBox(id, rawText) {
             const parsedHtml = parseText(rawText);
             
-            // Set up LocalStorage view count
+            // LocalStorage tracks views per user device
             let views = localStorage.getItem(`blog_views_${id}`) || 0;
 
-            // Create the UI Box
             const box = document.createElement('div');
             box.className = 'blog-box';
             
-            // Extract the title (whatever text is inside the .blog-title div) to show on the cover
+            // Grab the text inside the ## title line to use as the cover heading
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = parsedHtml;
-            const titleElement = tempDiv.querySelector('.blog-title');
-            const displayTitle = titleElement ? titleElement.innerText : `Blog Post #${id}`;
+            const titleElement = tempDiv.querySelector('.blog-title-header');
+            const displayTitle = titleElement ? titleElement.innerText : `網誌文章 #${id}`;
 
             box.innerHTML = `
                 <div class="blog-cover">
                     <h2>${displayTitle}</h2>
-                    <span class="view-count">👁️ <span id="view-num-${id}">${views}</span> views</span>
+                    <span class="view-count">👁️ <span id="view-num-${id}">${views}</span> 次觀看</span>
                 </div>
                 <div class="blog-content" id="content-${id}">
                     ${parsedHtml}
                 </div>
             `;
 
-            // Add click event to open the box and increase view count
+            // Toggle logic + view counter increment
             box.addEventListener('click', function() {
                 const contentDiv = document.getElementById(`content-${id}`);
                 const viewSpan = document.getElementById(`view-num-${id}`);
                 
                 if (contentDiv.style.display === 'none' || contentDiv.style.display === '') {
-                    // Open the blog
                     contentDiv.style.display = 'block';
-                    
-                    // Increment and save views
                     views++;
                     localStorage.setItem(`blog_views_${id}`, views);
                     viewSpan.innerText = views;
                 } else {
-                    // Close the blog
                     contentDiv.style.display = 'none';
                 }
             });
 
-            // If the title was already extracted to the cover, remove it from the body to avoid repeating
+            // Clean up title inside the content box so it doesn't repeat
             if (titleElement) {
-                const contentDiv = box.querySelector('.blog-content');
-                const titleInContent = contentDiv.querySelector('.blog-title');
-                if (titleInContent) titleInContent.remove();
+                const innerTitle = box.querySelector('.blog-content .blog-title-header');
+                if (innerTitle) innerTitle.remove();
             }
 
             container.appendChild(box);
         }
 
-        // Initialize
+        // Start loading
         loadBlogs();
     </script>
 </body>
