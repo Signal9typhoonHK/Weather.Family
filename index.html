@@ -50,7 +50,7 @@
         .post-content {
             font-size: 1.05rem;
             word-wrap: break-word;
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* 保持原本 txt 的換行與空格 */
         }
         a {
             color: #0984e3;
@@ -88,56 +88,64 @@
     </main>
 
     <script>
-        const BLOGS_FOLDER = 'blogs'; // 固定偵測這個資料夾
+        const BLOGS_FOLDER = 'blogs'; 
 
-        // 自動解析特殊語法
+        // 安全精準的語法解析器
         function parseTextSyntax(text) {
+            // 1. 防止 HTML 標籤衝突
             let html = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            html = html.replace(/"([^"]+)"\[(https?:\/\/[^\]\s]+)\]/g, '%%CUSTOM_LINK%%$1|$2%%CUSTOM_LINK%%');
-            html = html.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
-            html = html.replace(/%%CUSTOM_LINK%%([^|]+)\|([^%]+)%%CUSTOM_LINK%%/g, '<a href="$2" target="_blank">$1</a>');
+
+            // 2. 安全封裝自訂連結: "顯示文字"[網址] 轉為臨時編號代碼，避免與純網址偵測衝突
+            let linkPlaceholders = [];
+            html = html.replace(/"([^"]+)"\[(https?:\/\/[^\]\s]+)\]/g, function(match, label, url) {
+                linkPlaceholders.push(`<a href="${url}" target="_blank">${label}</a>`);
+                return `___LINK_ID_${linkPlaceholders.length - 1}___`;
+            });
+
+            // 3. 自動偵測普通純網址並加上超連結 (排除已被打包或包含引號括號的雜訊)
+            html = html.replace(/(https?:\/\/[^\s"'<>\]\)]+)/g, '<a href="$1" target="_blank">$1</a>');
+
+            // 4. 將剛剛安全打包的自訂連結還原放回 HTML
+            html = html.replace(/___LINK_ID_(\d+)___/g, function(match, index) {
+                return linkPlaceholders[index];
+            });
+
+            // 5. 處理類似 Discord 的 # 粗體大字 (支援每行開頭有 # )
             html = html.replace(/^#\s*(.+)/gm, '<span class="dc-bold">$1</span>');
+
             return html;
         }
 
-        // 自動從目前網址獲取 GitHub 資訊
+        // 自動從目前網址獲取 GitHub 資訊 (免填帳號密碼)
         function getGitHubInfo() {
-            const hostname = window.location.hostname; // 例如: username.github.io
-            const pathname = window.location.pathname; // 例如: /repo-name/ 或 /repo-name/index.html
+            const hostname = window.location.hostname;
+            const pathname = window.location.pathname;
 
-            // 確保是在 standard GitHub Pages 運作
             if (hostname.endsWith('.github.io')) {
                 const username = hostname.split('.')[0];
                 const pathParts = pathname.split('/').filter(part => part);
                 const repo = pathParts[0] || '';
                 return { username, repo };
             }
-            
-            // 如果你在本機電腦點開測試 (例如 file:/// 或 localhost)
-            // 請在這裡填寫你測試用的備用帳號與儲存庫
-            return {
-                username: '請在線上測試',
-                repo: '或是將檔案推送到GitHub上就會自動運作'
-            };
+            return { username: 'LOCAL_TEST', repo: '' };
         }
 
-        // 自動讀取文章
+        // 讀取文章主程式
         async function loadBlogPosts() {
             const container = document.getElementById('blog-container');
             const gitHubInfo = getGitHubInfo();
             
-            if (gitHubInfo.username === '請在線上測試') {
-                container.innerHTML = `<div class="error">提示：請將檔案推送到 GitHub Pages 線上網址查看，本機直接點開無法自動偵測。</div>`;
+            if (gitHubInfo.username === 'LOCAL_TEST') {
+                container.innerHTML = `<div class="error">提示：請將檔案 commit & push 到 GitHub 儲存庫，並開啟 GitHub Pages 網址查看。<br>(本機電腦雙擊點開 HTML 無法使用自動偵測功能)</div>`;
                 return;
             }
 
             try {
-                // 動態利用網址組裝出 API 路徑，完全不寫死！
                 const apiUrl = `https://api.github.com/repos/${gitHubInfo.username}/${gitHubInfo.repo}/contents/${BLOGS_FOLDER}`;
                 const response = await fetch(apiUrl);
                 
                 if (!response.ok) {
-                    throw new Error('無法連線至 GitHub API，請確認您的 GitHub Pages 已開啟，且儲存庫是公開(Public)的。');
+                    throw new Error('無法連線至 GitHub Pages 資料庫，請確認您的儲存庫設定為公開(Public)。');
                 }
                 
                 const files = await response.json();
@@ -146,7 +154,7 @@
                 const txtFiles = files.filter(file => file.name.endsWith('.txt'));
 
                 if (txtFiles.length === 0) {
-                    container.innerHTML = '<div class="no-posts">目前沒有任何文章，快去 blogs 資料夾新增檔案吧！</div>';
+                    container.innerHTML = '<div class="no-posts">目前 blogs 資料夾內沒有任何 .txt 文章喔！</div>';
                     return;
                 }
 
@@ -156,6 +164,7 @@
                 for (const file of txtFiles) {
                     const contentResponse = await fetch(file.download_url);
                     const rawText = await contentResponse.text();
+                    
                     const formattedContent = parseTextSyntax(rawText);
                     const postTitle = file.name.replace('.txt', '');
 
@@ -169,12 +178,12 @@
                 }
 
             } catch (error) {
-                container.innerHTML = `<div class="error">發生錯誤：<br>${error.message}</div>`;
+                container.innerHTML = `<div class="error">載入失敗，錯誤原因：<br>${error.message}</div>`;
                 console.error(error);
             }
         }
 
-        // 重新整理時自動執行
+        // 網頁運行或重新整理時執行
         loadBlogPosts();
     </script>
 </body>
