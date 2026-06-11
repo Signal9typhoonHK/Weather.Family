@@ -8,7 +8,7 @@
     
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #f4f6f8;
             color: #333;
             max-width: 700px;
@@ -19,12 +19,12 @@
             text-align: center;
             color: #1a1a1a;
             font-size: 2.2em;
-            margin-bottom: 30px;
         }
         #blog-container {
             display: flex;
             flex-direction: column;
             gap: 20px;
+            margin-top: 20px;
         }
         .blog-box {
             background: #ffffff;
@@ -33,100 +33,104 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             border: 1px solid #e1e8ed;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
-        }
-        .blog-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            border-color: #ccd6dd;
-        }
-        .blog-cover h2 {
-            margin: 0 0 8px 0;
-            color: #1b1d1f;
-            font-size: 1.4em;
-        }
-        .view-count {
-            font-size: 0.85em;
-            color: #657786;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
         }
         .blog-content {
-            display: none; /* Collapsed by default */
+            display: none;
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #e1e8ed;
             line-height: 1.8;
-            font-size: 1.05em;
-            color: #2c3e50;
         }
-        a {
-            color: #1d9bf0;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        a:hover {
-            text-decoration: underline;
+        .view-count { font-size: 0.85em; color: #657786; }
+        a { color: #1d9bf0; text-decoration: none; font-weight: 500; }
+        a:hover { text-decoration: underline; }
+
+        /* Error Message Box */
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-top: 20px;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
 
     <h1>天氣家族</h1>
+    
     <div id="blog-container"></div>
 
     <script>
         let blogIndex = 1;
         const container = document.getElementById('blog-container');
 
+        // Automatically detects your exact GitHub Pages folder URL layout
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+
         async function loadBlogs() {
             while (true) {
+                // Creates an absolute path: https://username.github.io/repo/root/blogs/1.txt
+                const txtUrl = `${baseUrl}root/blogs/${blogIndex}.txt`;
+                
                 try {
-                    // Fetch sequentially (1.txt, 2.txt...) using relative paths
-                    const response = await fetch(`./root/blogs/${blogIndex}.txt`);
-                    if (!response.ok) break; // Stop loop if file doesn't exist
+                    const response = await fetch(txtUrl);
+                    
+                    if (!response.ok) {
+                        // If it fails on the very first file, show a helpful screen error
+                        if (blogIndex === 1) {
+                            showError(txtUrl, response.status);
+                        }
+                        break; 
+                    }
                     
                     const text = await response.text();
                     createBlogBox(blogIndex, text);
                     blogIndex++;
                 } catch (error) {
+                    if (blogIndex === 1) showError(txtUrl, error.message);
                     break;
                 }
             }
         }
 
+        function showError(url, status) {
+            container.innerHTML = `
+                <div class="error-msg">
+                    <h3>⚠️ 找不到網誌檔案 (Blog File Not Found)</h3>
+                    <p>網頁想要讀取你的 <b>1.txt</b>，但在這個網址找不到它：</p>
+                    <p><a href="${url}" target="_blank">${url}</a></p>
+                    <p><b>錯誤原因可能是以下其中一項：</b></p>
+                    <ul>
+                        <li>你的資料夾名稱有大寫？（必須全小寫：<b>root/blogs/1.txt</b>）</li>
+                        <li>你的副檔名寫成了 <b>1.TXT</b> 或 <b>1.txt.txt</b>？</li>
+                        <li>GitHub Pages 還在快取舊畫面，請等 2 分鐘後按 <b>Ctrl + F5</b> 強制重新整理。</li>
+                    </ul>
+                </div>
+            `;
+        }
+
         function parseText(text) {
             let html = text;
-
-            // 1. Convert ## Title lines into blog titles
-            html = html.replace(/^##\s*(.+)$/gm, '<div class="blog-title-header">$1</div>');
-
-            // 2. Format "text"[url] custom links
+            html = html.replace(/^##\s*(.+)$/gm, '<div class="blog-title-header"><h2>$1</h2></div>');
             html = html.replace(/"([^"]+)"\[([^\]]+)\]/g, '<a href="$2" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">$1</a>');
-
-            // 3. Format standalone raw URLs safely (ignores URLs already in href attributes)
             html = html.replace(/(?<!href=["'])(https?:\/\/[^\s><"']+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">$1</a>');
-
-            // 4. Convert newlines to breaks to preserve text layout
             html = html.replace(/\n/g, '<br>');
-
             return html;
         }
 
         function createBlogBox(id, rawText) {
             const parsedHtml = parseText(rawText);
-            
-            // LocalStorage tracks views per user device
             let views = localStorage.getItem(`blog_views_${id}`) || 0;
 
             const box = document.createElement('div');
             box.className = 'blog-box';
             
-            // Grab the text inside the ## title line to use as the cover heading
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = parsedHtml;
-            const titleElement = tempDiv.querySelector('.blog-title-header');
+            const titleElement = tempDiv.querySelector('.blog-title-header h2');
             const displayTitle = titleElement ? titleElement.innerText : `網誌文章 #${id}`;
 
             box.innerHTML = `
@@ -139,7 +143,6 @@
                 </div>
             `;
 
-            // Toggle logic + view counter increment
             box.addEventListener('click', function() {
                 const contentDiv = document.getElementById(`content-${id}`);
                 const viewSpan = document.getElementById(`view-num-${id}`);
@@ -154,7 +157,6 @@
                 }
             });
 
-            // Clean up title inside the content box so it doesn't repeat
             if (titleElement) {
                 const innerTitle = box.querySelector('.blog-content .blog-title-header');
                 if (innerTitle) innerTitle.remove();
@@ -163,7 +165,6 @@
             container.appendChild(box);
         }
 
-        // Start loading
         loadBlogs();
     </script>
 </body>
