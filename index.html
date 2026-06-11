@@ -24,13 +24,11 @@
             gap: 40px;
         }
 
-        /* Left Side: Main Content & Dynamic Blogs */
         .main-content {
             flex: 1;
             min-width: 0;
         }
 
-        /* Right Side: Threads Directory Sidebar */
         .sidebar {
             width: 300px;
             border-left: 1px dashed #ddd;
@@ -38,7 +36,6 @@
             flex-shrink: 0;
         }
 
-        /* Header layout */
         .brand-header {
             display: flex;
             align-items: center;
@@ -53,6 +50,7 @@
             border: 1px solid #ccc;
             padding: 2px;
             background: #fff;
+            display: block;
         }
 
         .site-title {
@@ -93,7 +91,6 @@
             font-size: 14px;
         }
 
-        /* Sidebar Community List Styling */
         .directory-group {
             margin-bottom: 25px;
         }
@@ -136,7 +133,6 @@
             margin-left: 5px;
         }
 
-        /* Dynamic Blog Post Cards */
         .blog-card {
             border: 1px solid #e5e5e5;
             padding: 20px;
@@ -183,10 +179,9 @@
 
     <div id="container">
         
-        <!-- Left Section: Main Feed -->
         <div class="main-content">
             <div class="brand-header">
-                <img src="icons/weatherfamily.png" alt="天氣家族" class="site-icon">
+                <img src="./icons/weatherfamily.png" alt="Logo" class="site-icon">
                 <div class="site-title">天氣家族 Blog</div>
             </div>
 
@@ -198,11 +193,9 @@
             <div id="blog-feed">正在讀取網誌文章...</div>
         </div>
 
-        <!-- Right Section: Threads Directory -->
         <div class="sidebar">
             <h1>天氣家族 Threads 名冊</h1>
             
-            <!-- Group 1 -->
             <div class="directory-group">
                 <h3>1. 天氣先生家族</h3>
                 <ul class="directory-list">
@@ -212,7 +205,6 @@
                 </ul>
             </div>
 
-            <!-- Group 2 -->
             <div class="directory-group">
                 <h3>2. 火災家族</h3>
                 <ul class="directory-list">
@@ -221,7 +213,6 @@
                 </ul>
             </div>
 
-            <!-- Group 3 -->
             <div class="directory-group">
                 <h3>3. 流星雨單身狗</h3>
                 <ul class="directory-list">
@@ -229,7 +220,6 @@
                 </ul>
             </div>
 
-            <!-- Group 4 -->
             <div class="directory-group">
                 <h3>4. 暴雨家族</h3>
                 <ul class="directory-list">
@@ -248,7 +238,6 @@
                 </ul>
             </div>
 
-            <!-- Group 5 -->
             <div class="directory-group">
                 <h3>5. 颱風家族</h3>
                 <ul class="directory-list">
@@ -262,7 +251,6 @@
                 </ul>
             </div>
 
-            <!-- Group 6 -->
             <div class="directory-group">
                 <h3>6. 季候風家族</h3>
                 <ul class="directory-list">
@@ -283,16 +271,13 @@
         const indexFile = 'blogs/posts.txt';
         const feedContainer = document.getElementById('blog-feed');
 
-        // Regex pattern to extract content inside parenthese (shottitleName)
         function extractTitle(filename) {
             const match = filename.match(/\(([^)]+)\)/);
             return match ? match[1] : '未命名文章';
         }
 
-        // Standard link regex processing [Text](URL)
         function parseBodyContent(rawText) {
-            let processed = rawText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-            return processed;
+            return rawText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
         }
 
         async function loadFeed() {
@@ -308,7 +293,7 @@
                     return;
                 }
 
-                feedContainer.innerHTML = ''; // Clean string
+                feedContainer.innerHTML = ''; 
 
                 for (const file of files) {
                     try {
@@ -316,7 +301,6 @@
                         if (fileResponse.ok) {
                             const rawContent = await fileResponse.text();
                             
-                            // Automatically grab title from filename string structure
                             const parsedTitle = extractTitle(file);
                             const parsedBody = parseBodyContent(rawContent);
 
@@ -336,7 +320,7 @@
             } catch (err) {
                 feedContainer.innerHTML = `
                     <div class="error-box">
-                        讀取錯誤：請確認是否建立了post 在 /root/bolgs/...
+                        讀取錯誤：請確認是否建立了 /blogs/posts.txt 並且正在透過本地主機環境（如 Live Server）開啟此網頁。
                     </div>
                 `;
             }
