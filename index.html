@@ -2,53 +2,171 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <title>天氣家族 (全自動網誌)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天氣家族</title>
+    <link rel="icon" href="/root/icons/weatherfamily.png" type="image/png">
+    
     <style>
-        body { font-family: sans-serif; background: #f9f9f9; padding: 20px; }
-        #container { max-width: 800px; margin: auto; background: #fff; padding: 40px; border: 1px solid #ddd; }
-        .brand { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-        .site-icon { width: 50px; height: 50px; }
-        .blog-card { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc; }
-        .blog-card h4 { margin: 0 0 10px 0; color: #000; text-decoration: underline; }
-        .blog-card p { white-space: pre-wrap; font-size: 15px; line-height: 1.6; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .blog-box {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .blog-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .blog-content {
+            display: none; /* Hidden by default */
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            line-height: 1.6;
+        }
+        .blog-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0;
+            color: #34495e;
+        }
+        .view-count {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <div id="container">
-        <div class="brand">
-            <img src="icons/weatherfamily.png" class="site-icon">
-            <h1>天氣家族 Blog</h1>
-        </div>
-        <div id="blog-feed">正在自動同步網誌文章...</div>
-    </div>
+
+    <h1>天氣家族</h1>
+    <div id="blog-container"></div>
 
     <script>
-        // 設定你的 GitHub 資訊
-        const repoOwner = "你的GitHub帳號"; 
-        const repoName = "你的倉庫名稱";
-        const path = "blogs";
+        // Start looking for 1.txt, then 2.txt, etc.
+        let blogIndex = 1;
+        const container = document.getElementById('blog-container');
 
-        async function autoLoadFiles() {
-            const feed = document.getElementById('blog-feed');
-            try {
-                const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                feed.innerHTML = '';
-                // 自動篩選所有 .txt 檔並顯示
-                for (const file of data.filter(f => f.name.endsWith('.txt'))) {
-                    const contentRes = await fetch(file.download_url);
-                    const content = await contentRes.text();
-                    // 自動抓取括號內容作為標題
-                    const title = file.name.match(/\(([^)]+)\)/)?.[1] || file.name.replace('.txt', '');
-                    const body = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        async function loadBlogs() {
+            while (true) {
+                try {
+                    // Try to fetch the text file
+                    const response = await fetch(`/root/blogs/${blogIndex}.txt`);
                     
-                    feed.innerHTML += `<div class="blog-card"><h4>${title}</h4><p>${body}</p></div>`;
+                    // If the file doesn't exist (e.g., we ran out of blogs), stop the loop
+                    if (!response.ok) break; 
+                    
+                    const text = await response.text();
+                    createBlogBox(blogIndex, text);
+                    blogIndex++;
+                } catch (error) {
+                    console.error("Finished loading blogs or encountered an error.", error);
+                    break;
                 }
-            } catch(e) { feed.innerHTML = '無法自動同步，請確認 GitHub 倉庫設定是否正確。'; }
+            }
         }
-        autoLoadFiles();
+
+        function parseText(text) {
+            let html = text;
+
+            // 1. Format ##Title as bold and blog title
+            // Looks for ## at the start of a line, captures the rest, makes it bold
+            html = html.replace(/^##\s*(.+)$/gm, '<div class="blog-title">$1</div>');
+
+            // 2. Format "text"[url] into clickable links
+            // e.g., "click me"[https://google.com]
+            html = html.replace(/"([^"]+)"\[([^\]]+)\]/g, '<a href="$2" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">$1</a>');
+
+            // 3. Format raw URLs into clickable links
+            // Uses negative lookbehind to ensure we don't accidentally double-link existing <a> tags
+            html = html.replace(/(?<!href=["'])(https?:\/\/[^\s<]+)(?!["'])/g, '<a href="$1" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">$1</a>');
+
+            // 4. Convert line breaks to <br> so formatting is preserved
+            html = html.replace(/\n/g, '<br>');
+
+            return html;
+        }
+
+        function createBlogBox(id, rawText) {
+            const parsedHtml = parseText(rawText);
+            
+            // Set up LocalStorage view count
+            let views = localStorage.getItem(`blog_views_${id}`) || 0;
+
+            // Create the UI Box
+            const box = document.createElement('div');
+            box.className = 'blog-box';
+            
+            // Extract the title (whatever text is inside the .blog-title div) to show on the cover
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = parsedHtml;
+            const titleElement = tempDiv.querySelector('.blog-title');
+            const displayTitle = titleElement ? titleElement.innerText : `Blog Post #${id}`;
+
+            box.innerHTML = `
+                <div class="blog-cover">
+                    <h2>${displayTitle}</h2>
+                    <span class="view-count">👁️ <span id="view-num-${id}">${views}</span> views</span>
+                </div>
+                <div class="blog-content" id="content-${id}">
+                    ${parsedHtml}
+                </div>
+            `;
+
+            // Add click event to open the box and increase view count
+            box.addEventListener('click', function() {
+                const contentDiv = document.getElementById(`content-${id}`);
+                const viewSpan = document.getElementById(`view-num-${id}`);
+                
+                if (contentDiv.style.display === 'none' || contentDiv.style.display === '') {
+                    // Open the blog
+                    contentDiv.style.display = 'block';
+                    
+                    // Increment and save views
+                    views++;
+                    localStorage.setItem(`blog_views_${id}`, views);
+                    viewSpan.innerText = views;
+                } else {
+                    // Close the blog
+                    contentDiv.style.display = 'none';
+                }
+            });
+
+            // If the title was already extracted to the cover, remove it from the body to avoid repeating
+            if (titleElement) {
+                const contentDiv = box.querySelector('.blog-content');
+                const titleInContent = contentDiv.querySelector('.blog-title');
+                if (titleInContent) titleInContent.remove();
+            }
+
+            container.appendChild(box);
+        }
+
+        // Initialize
+        loadBlogs();
     </script>
 </body>
 </html>
