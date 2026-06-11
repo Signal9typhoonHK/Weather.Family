@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天氣家族 | Threads</title>
+    <style>
+        /* Threads Dark Mode Color Palette */
+        :root {
+            --bg-color: #101010;
+            --text-primary: #F3F5F7;
+            --text-secondary: #777777;
+            --border-color: #333638;
+            --accent-color: #000000;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Main Feed Container */
+        .feed-container {
+            width: 100%;
+            max-width: 600px;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background-color: rgba(16, 16, 16, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Thread Post Layout */
+        .thread {
+            display: flex;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Avatar Column */
+        .thread-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .thread-line {
+            width: 2px;
+            background-color: var(--border-color);
+            flex-grow: 1;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Content Column */
+        .thread-right {
+            flex-grow: 1;
+        }
+
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .timestamp {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .thread-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        /* Action Buttons (Like, Comment, Repost, Share) */
+        .thread-actions {
+            display: flex;
+            gap: 16px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .action-icon {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .action-icon:hover {
+            color: var(--text-primary);
+        }
+
+        /* Reply Thread (Nested) */
+        .thread.reply {
+            border-bottom: none;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+
+        .reply-container {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="feed-container">
+        <header>
+            <h1>@weather_family_hk</h1>
+            <p>天氣家族 ☁️ Threads Community</p>
+        </header>
+
+        <!-- Main Thread 1 -->
+        <div class="thread">
+            <div class="thread-left">
+                <div class="avatar">☀️</div>
+            </div>
+            <div class="thread-right">
+                <div class="thread-header">
+                    <span class="username">sunny_boy</span>
+                    <span class="timestamp">2h</span>
+                </div>
+                <div class="thread-content">
+                    天氣家族點名！大家今日係咩天氣？我先：今日出太陽，心情極好 😎☀️
+                </div>
+                <div class="thread-actions">
+                    <span class="action-icon">❤️</span>
+                    <span class="action-icon">💬</span>
+                    <span class="action-icon">🔁</span>
+                    <span class="action-icon">✈️</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reply Container -->
+        <div class="reply-container">
+            <div class="thread reply">
+                <div class="thread-left">
+                    <div class="avatar">🌧️</div>
+                    <div class="thread-line"></div>
+                </div>
+                <div class="thread-right">
+                    <div class="thread-header">
+                        <span class="username">rainy_vibes</span>
+                        <span class="timestamp">1h</span>
+                    </div>
+                    <div class="thread-content">
+                        唔好提啦，我呢邊落緊雨，完全唔想出門口... 🥲
+                    </div>
+                    <div class="thread-actions">
+                        <span class="action-icon">❤️</span>
+                        <span class="action-icon">💬</span>
+                        <span class="action-icon">🔁</span>
+                        <span class="action-icon">✈️</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="thread reply">
+                <div class="thread-left">
+                    <div class="avatar">🌪️</div>
+                </div>
+                <div class="thread-right">
+                    <div class="thread-header">
+                        <span class="username">typhoon_warning</span>
+                        <span class="timestamp">45m</span>
+                    </div>
+                    <div class="thread-content">
+                        隨時準備掛八號風球！天氣家族準備出動去買杯麵未？🍜🌬️
+                    </div>
+                    <div class="thread-actions">
+                        <span class="action-icon">❤️</span>
+                        <span class="action-icon">💬</span>
+                        <span class="action-icon">🔁</span>
+                        <span class="action-icon">✈️</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Thread 2 -->
+        <div class="thread">
+            <div class="thread-left">
+                <div class="avatar">☁️</div>
+            </div>
+            <div class="thread-right">
+                <div class="thread-header">
+                    <span class="username">cloud_nine</span>
+                    <span class="timestamp">4h</span>
+                </div>
+                <div class="thread-content">
+                    啱啱開咗個 group chat，天氣家族嘅成員快啲入嚟報到啦！我哋要搞個網聚 ☕️
+                </div>
+                <div class="thread-actions">
+                    <span class="action-icon">❤️</span>
+                    <span class="action-icon">💬</span>
+                    <span class="action-icon">🔁</span>
+                    <span class="action-icon">✈️</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
